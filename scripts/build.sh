@@ -137,6 +137,7 @@ build_rpm_on_copr() {
       lua53_repo_baseurl='https://copr-be.cloud.fedoraproject.org/results/hnakamur/lua-5.3/'$chroot_without_arch'-\$basearch/'
       chroot_opts="$chroot_opts --data-urlencode repos=${lua53_repo_baseurl}"
     done
+    # TODO: Add parameter to set the project build option "Enable internet access during builds"
     curl -s -X POST -u "${COPR_LOGIN}:${COPR_TOKEN}" \
       -H "Expect:" \
       --data-urlencode "name=${copr_project_name}" \
