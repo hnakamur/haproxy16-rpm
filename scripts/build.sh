@@ -134,9 +134,7 @@ build_rpm_on_copr() {
       chroot_opts="$chroot_opts --data-urlencode ${mock_chroot}=y"
 
       chroot_without_arch=${mock_chroot%-*}
-      # NOTE: Need to escape $basesearch twice since we evaluate twice,
-      # one for $lua53_repo_baseurl and one for $chroot_opts after loop.
-      lua53_repo_baseurl='https://copr-be.cloud.fedoraproject.org/results/hnakamur/lua-5.3/'$chroot_without_arch'-\\$basearch/'
+      lua53_repo_baseurl='https://copr-be.cloud.fedoraproject.org/results/hnakamur/lua-5.3/'$chroot_without_arch'-\$basearch/'
       chroot_opts="$chroot_opts --data-urlencode repos=${lua53_repo_baseurl}"
     done
     curl -s -X POST -u "${COPR_LOGIN}:${COPR_TOKEN}" \
