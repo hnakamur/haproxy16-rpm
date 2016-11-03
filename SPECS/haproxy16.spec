@@ -1,14 +1,21 @@
+%define haproxy_major_version 1.6
+%define _prefix /opt/haproxy-%{haproxy_major_version}
 %define haproxy_user    haproxy
 %define haproxy_group   %{haproxy_user}
 %define haproxy_home    %{_localstatedir}/lib/haproxy
-%define haproxy_confdir %{_sysconfdir}/haproxy
+%define haproxy_confdir %{_sysconfdir}/haproxy-%{haproxy_major_version}
 %define haproxy_datadir %{_datadir}/haproxy
+
+%define lua_major_version 5.3
+%define lua_prefix /opt/lua-%{lua_major_version}
+%define lua_inc %{lua_prefix}/include
+%define lua_lib %{lua_prefix}/lib64
 
 %global _hardened_build 1
 
-Name:           haproxy
+Name:           haproxy16
 Version:        1.6.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        HAProxy reverse proxy for high availability environments
 
 Group:          System Environment/Daemons
@@ -16,10 +23,10 @@ License:        GPLv2+
 
 URL:            http://www.haproxy.org/
 Source0:        http://www.haproxy.org/download/1.6/src/haproxy-%{version}.tar.gz
-Source1:        %{name}.service
-Source2:        %{name}.cfg
-Source3:        %{name}.logrotate
-Source4:        %{name}.sysconfig
+Source1:        haproxy.service
+Source2:        haproxy.cfg
+Source3:        haproxy.logrotate
+Source4:        haproxy.sysconfig
 Source5:        halog.1
 
 Patch0:         halog-unused-variables.patch
@@ -52,7 +59,7 @@ availability environments. Indeed, it can:
    intercepted from the application
 
 %prep
-%setup -q
+%setup -q -n haproxy-%{version}
 %patch0 -p0
 %patch1 -p0
 
@@ -62,7 +69,7 @@ regparm_opts=
 regparm_opts="USE_REGPARM=1"
 %endif
 
-%{__make} %{?_smp_mflags} CPU="generic" TARGET="linux2628" USE_OPENSSL=1 USE_PCRE=1 USE_ZLIB=1 USE_LUA=1 LUA_INC=/opt/lua-5.3/include LUA_LIB=/opt/lua-5.3/lib64 ${regparm_opts} ADDINC="%{optflags}" USE_LINUX_TPROXY=1 ADDLIB="%{__global_ldflags}"
+%{__make} %{?_smp_mflags} CPU="generic" TARGET="linux2628" USE_OPENSSL=1 USE_PCRE=1 USE_ZLIB=1 USE_LUA=1 LUA_INC=%{lua_inc} LUA_LIB=%{lua_lib} ${regparm_opts} ADDINC="%{optflags}" USE_LINUX_TPROXY=1 ADDLIB="%{__global_ldflags}"
 
 pushd contrib/halog
 %{__make} ${halog} OPTIMIZE="%{optflags}"
@@ -76,10 +83,10 @@ popd
 %{__make} install-bin DESTDIR=%{buildroot} PREFIX=%{_prefix} TARGET="linux2628"
 %{__make} install-man DESTDIR=%{buildroot} PREFIX=%{_prefix}
 
-%{__install} -p -D -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
-%{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{haproxy_confdir}/%{name}.cfg
-%{__install} -p -D -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-%{__install} -p -D -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{name}
+%{__install} -p -D -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}/haproxy-%{haproxy_major_version}.service
+%{__install} -p -D -m 0644 %{SOURCE2} %{buildroot}%{haproxy_confdir}/haproxy.cfg
+%{__install} -p -D -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/haproxy-%{haproxy_major_version}
+%{__install} -p -D -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/haproxy-%{haproxy_major_version}
 %{__install} -p -D -m 0644 %{SOURCE5} %{buildroot}%{_mandir}/man1/halog.1
 %{__install} -d -m 0755 %{buildroot}%{haproxy_home}
 %{__install} -d -m 0755 %{buildroot}%{haproxy_datadir}
@@ -113,13 +120,13 @@ getent passwd %{haproxy_user} >/dev/null || \
 exit 0
 
 %post
-%systemd_post %{name}.service
+%systemd_post haproxy-%{haproxy_major_version}.service
 
 %preun
-%systemd_preun %{name}.service
+%systemd_preun haproxy-%{haproxy_major_version}.service
 
 %postun
-%systemd_postun_with_restart %{name}.service
+%systemd_postun_with_restart haproxy-%{haproxy_major_version}.service
 
 %files
 %defattr(-,root,root,-)
@@ -128,18 +135,22 @@ exit 0
 %dir %{haproxy_confdir}
 %dir %{haproxy_datadir}
 %{haproxy_datadir}/*
-%config(noreplace) %{haproxy_confdir}/%{name}.cfg
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
-%{_unitdir}/%{name}.service
-%{_sbindir}/%{name}
-%{_sbindir}/%{name}-systemd-wrapper
+%config(noreplace) %{haproxy_confdir}/haproxy.cfg
+%config(noreplace) %{_sysconfdir}/logrotate.d/haproxy-%{haproxy_major_version}
+%config(noreplace) %{_sysconfdir}/sysconfig/haproxy-%{haproxy_major_version}
+%{_unitdir}/haproxy-%{haproxy_major_version}.service
+%{_sbindir}/haproxy
+%{_sbindir}/haproxy-systemd-wrapper
 %{_bindir}/halog
 %{_bindir}/iprange
 %{_mandir}/man1/*
 %attr(-,%{haproxy_user},%{haproxy_group}) %dir %{haproxy_home}
 
 %changelog
+* Thu Nov  3 2016 Hiroaki Nakamura <hnakamur@gmail.com> - 1.6.9-2
+- Ported to CentOS 7
+- Change _prefix to /opt/haproxy16-%{haproxy_major_version}
+
 * Wed Aug 31 2016 Ryan O'Hara <rohara@redhat.com> - 1.6.9-1
 - Update to 1.6.9 (#1370709)
 

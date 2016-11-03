@@ -3,8 +3,8 @@ Description=HAProxy Load Balancer
 After=syslog.target network.target
 
 [Service]
-EnvironmentFile=/etc/sysconfig/haproxy
-ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid $OPTIONS
+EnvironmentFile=/etc/sysconfig/haproxy-1.6
+ExecStart=/opt/haproxy-1.6/sbin/haproxy-systemd-wrapper -f /etc/haproxy-1.6/haproxy.cfg -p /run/haproxy-1.6.pid $OPTIONS
 ExecReload=/bin/kill -USR2 $MAINPID
 
 [Install]
