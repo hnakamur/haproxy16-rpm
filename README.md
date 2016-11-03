@@ -3,8 +3,6 @@ haproxy16-rpm
 
 A Dockerfile to build [haproxy](http://www.haproxy.org/) 1.6.x rpm for CentOS 7 using [fedora copr](https://copr.fedoraproject.org/).
 
-Warning: Modules may be added or deleted without notice.
-
 ## Setup
 
 1. Copy `.envrc.example` to `.envrc`.
