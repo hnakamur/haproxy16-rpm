@@ -25,7 +25,8 @@ Source5:        halog.1
 Patch0:         halog-unused-variables.patch
 Patch1:         iprange-return-type.patch
 
-BuildRequires:  lua-devel
+BuildRequires:  lua53-devel
+BuildRequires:  lua53-static
 BuildRequires:  pcre-devel
 BuildRequires:  zlib-devel
 BuildRequires:  openssl-devel
@@ -61,7 +62,7 @@ regparm_opts=
 regparm_opts="USE_REGPARM=1"
 %endif
 
-%{__make} %{?_smp_mflags} CPU="generic" TARGET="linux2628" USE_OPENSSL=1 USE_PCRE=1 USE_ZLIB=1 USE_LUA=1 ${regparm_opts} ADDINC="%{optflags}" USE_LINUX_TPROXY=1 ADDLIB="%{__global_ldflags}"
+%{__make} %{?_smp_mflags} CPU="generic" TARGET="linux2628" USE_OPENSSL=1 USE_PCRE=1 USE_ZLIB=1 USE_LUA=1 LUA_INC=/opt/lua-5.3/include LUA_LIB=/opt/lua-5.3/lib64 ${regparm_opts} ADDINC="%{optflags}" USE_LINUX_TPROXY=1 ADDLIB="%{__global_ldflags}"
 
 pushd contrib/halog
 %{__make} ${halog} OPTIMIZE="%{optflags}"
